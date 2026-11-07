@@ -1,5 +1,5 @@
 """Парсер расписания УдГУ МКПО: 2 смена ДИЗ, РЕК, ТУР — группа 54.02.01-41, подгруппа 2."""
-import re, sys, json, datetime as dt, hashlib, urllib.request, urllib.parse, html
+import os, re, sys, json, datetime as dt, hashlib, urllib.request, urllib.parse, html
 import xlrd
 
 PAGE = "https://f-mkpo.udsu.ru/class_times"
@@ -78,11 +78,38 @@ def expand(lessons, start, days=35):
                            uid="udsu-" + hashlib.md5(f"{st.isoformat()}|{title}".encode()).hexdigest() + "@dasha"))
     return ev
 
+def load_overrides():
+    """Исключения из расписания, которые хранятся в базе (meta.schedule_overrides):
+    {"skip_weekdays":[0], "skip_from":"2026-11-09", "skip_until":"", "skip_dates":["2026-11-20"], "skip_titles":["Физическая культура"]}
+    weekday: 0 — понедельник … 5 — суббота."""
+    url, key = os.environ.get("SUPABASE_URL"), os.environ.get("SUPABASE_SERVICE_KEY")
+    if not url or not key: return {}
+    req = urllib.request.Request(url.rstrip("/") + "/rest/v1/meta?key=eq.schedule_overrides&select=value",
+                                 headers={"apikey": key, "Authorization": f"Bearer {key}"})
+    rows = json.loads(urllib.request.urlopen(req, timeout=60).read() or b"[]")
+    return (rows[0]["value"] or {}) if rows else {}
+
+def apply_overrides(ev, o):
+    if not o: return ev
+    wd, frm, until = set(o.get("skip_weekdays") or []), o.get("skip_from") or "0000", o.get("skip_until") or "9999"
+    dates, titles = set(o.get("skip_dates") or []), [t.lower() for t in (o.get("skip_titles") or [])]
+    out = []
+    for e in ev:
+        d = e["start"][:10]
+        if d in dates: continue
+        if frm <= d <= until and dt.date.fromisoformat(d).weekday() in wd: continue
+        if any(t in e["title"].lower() for t in titles): continue
+        out.append(e)
+    return out
+
 if __name__ == "__main__":
     out = sys.argv[1] if len(sys.argv) > 1 else "events.json"
     url = find_xls_url()
     urllib.request.urlretrieve(url, "schedule.xls")
     L = load("schedule.xls")
     ev = expand(L, dt.date.today(), 35)
+    ov = load_overrides()
+    if ov: print("Исключения:", ov)
+    ev = apply_overrides(ev, ov)
     json.dump(dict(source=url, events=ev), open(out, "w"), ensure_ascii=False, indent=1)
     for e in ev: print(e["start"][:16].replace("T"," "), e["end"][11:16], "|", e["title"], e["note"])

@@ -1,6 +1,6 @@
 // Офлайн-режим: оболочка приложения хранится на телефоне.
 // При новой версии на GitHub поменяй VERSION — телефон подтянет обновление.
-const VERSION = "dd-v1";
+const VERSION = "dd-v2";
 const SHELL = ["./", "index.html", "styles.css", "app.js", "config.js", "vendor/supabase.js",
   "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png"];
 

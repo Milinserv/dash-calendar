@@ -4,6 +4,7 @@ on:
   schedule:
     - cron: "47 15 * * *"      # 19:47 по Ижевску — проверка пар на сайте колледжа
     - cron: "*/30 2-19 * * *"  # каждые 30 минут с 6:00 до 23:30 по Ижевску — задачи из приложения ↔ iCloud
+    - cron: "5 19 * * *"       # 23:05 по Ижевску — перенос невыполненных задач на завтра
   workflow_dispatch:           # кнопка «Run workflow» для ручного запуска
 
 concurrency:
@@ -36,6 +37,11 @@ jobs:
           python parse.py events.json
           python -W ignore sync.py events.json | tee changes.txt
           python report_changes.py changes.txt
+
+      - name: Перенос невыполненных задач на завтра
+        if: github.event.schedule == '5 19 * * *'
+        working-directory: sync
+        run: python -W ignore carry.py
 
       - name: Приложение ↔ iCloud
         working-directory: sync

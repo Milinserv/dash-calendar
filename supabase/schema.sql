@@ -85,3 +85,49 @@ create policy "outbox own"    on public.outbox     for all to authenticated usin
 
 create index if not exists habit_logs_day on public.habit_logs (day);
 create index if not exists events_start   on public.events (start_at);
+
+-- ===== v2 =====
+-- 7. Записи внутри привычки: план и факт (например, контент-план постов)
+create table if not exists public.habit_entries (
+  id         text primary key,
+  user_id    uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  habit_id   text not null,
+  day        date,                    -- на какой день запланировано / когда сделано
+  title      text not null,
+  note       text default '',
+  status     text not null default 'planned' check (status in ('planned','done')),
+  deleted    boolean not null default false,
+  updated_at timestamptz not null default now()
+);
+
+-- 8. Счётчик переносов задач (пишет синхронизация в 23:00)
+create table if not exists public.task_carry (
+  uid        text primary key,
+  count      int not null default 0,
+  first_day  date,
+  last_moved timestamptz default now()
+);
+
+-- 9. «Потом»: дела без даты, которые можно поставить в удобный день
+create table if not exists public.someday (
+  id         text primary key,
+  user_id    uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  title      text not null,
+  url        text default '',
+  note       text default '',
+  status     text not null default 'open' check (status in ('open','scheduled','done')),
+  scheduled_to date,
+  deleted    boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.habit_entries enable row level security;
+alter table public.task_carry    enable row level security;
+alter table public.someday       enable row level security;
+drop policy if exists "entries own" on public.habit_entries;
+create policy "entries own" on public.habit_entries for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+drop policy if exists "carry read" on public.task_carry;
+create policy "carry read" on public.task_carry for select to authenticated using (true);
+drop policy if exists "someday own" on public.someday;
+create policy "someday own" on public.someday for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());

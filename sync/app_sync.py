@@ -41,6 +41,8 @@ def add_event(o):
         en = dt.datetime.fromisoformat(o["end"]).replace(tzinfo=TZ) if o.get("end") else s + dt.timedelta(hours=1)
         e.add("dtstart", s); e.add("dtend", en)
     if o.get("yearly"): e.add("rrule", {"freq": "yearly"})
+    if o.get("notes"): e.add("description", o["notes"])
+    if o.get("url"): e.add("url", o["url"])
     e.add("dtstamp", dt.datetime.now(dt.timezone.utc))
     for m in o.get("alarms") or []:
         a = Alarm(); a.add("action", "DISPLAY"); a.add("description", o["title"])

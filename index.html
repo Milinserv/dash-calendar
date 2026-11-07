@@ -55,7 +55,7 @@
         <div class="glow orange"><div class="lbl">Ближайший дедлайн</div><div><div class="big" id="dl-days">—</div><div class="cap" id="dl-cap"></div></div><div class="ticks"></div></div>
       </div>
       <div>
-        <div class="sec-head"><h2>Сегодня</h2></div>
+        <div class="sec-head"><h2>Сегодня</h2><span class="sub" id="carry-hint"></span></div>
         <div class="agenda" id="ag-today"></div>
       </div>
       <div>
@@ -70,8 +70,20 @@
 
     <!-- КАЛЕНДАРЬ -->
     <section class="view" id="v-cal">
-      <div class="sec-head" style="margin:0"><h2 id="month-title">Календарь</h2><button class="link" id="btn-add">+ Добавить</button></div>
+      <div class="sec-head" style="margin:0">
+        <h2 id="month-title">Календарь</h2>
+        <div class="row" style="flex-wrap:nowrap">
+          <div class="seg" role="tablist" aria-label="Вид календаря">
+            <button data-calmode="week" id="cm-week">Неделя</button><button data-calmode="month" id="cm-month">Месяц</button>
+          </div>
+          <button class="link" id="btn-add" aria-label="Добавить задачу">+</button>
+        </div>
+      </div>
       <div class="strip" id="strip"></div>
+      <div class="month card white" id="month" hidden>
+        <div class="month-nav"><button class="link" data-month="-1" aria-label="Предыдущий месяц">‹</button><b id="month-name"></b><button class="link" data-month="1" aria-label="Следующий месяц">›</button></div>
+        <div class="mgrid" id="mgrid"></div>
+      </div>
       <div class="filters" id="filters"></div>
       <form class="card white form" id="add-form" hidden>
         <div class="field"><label for="f-title">Что</label><input id="f-title" placeholder="Например, сдать макет Кате" required></div>
@@ -96,18 +108,11 @@
       </div>
       <div>
         <div class="sec-head"><h2>Привычки</h2><button class="link" id="btn-habit">+ Привычка</button></div>
-        <form class="card white form" id="habit-form" hidden>
-          <div class="two">
-            <div class="field"><label for="h-name">Название</label><input id="h-name" placeholder="Например, бег" required></div>
-            <div class="field"><label for="h-target">Раз в неделю</label><input id="h-target" type="number" min="1" max="7" value="3"></div>
-          </div>
-          <div class="row between"><button class="btn danger" type="button" id="h-del" hidden>Удалить</button><span></span><div class="row"><button class="btn" type="button" id="h-cancel">Отмена</button><button class="btn ink" type="submit">Сохранить</button></div></div>
-        </form>
         <div class="habits" id="habits-full"></div>
       </div>
       <div class="card">
-        <div class="sec-head"><h2>Нагрузка по дням</h2><span class="sub">часы, эта неделя</span></div>
-        <svg class="chart" id="load-chart" viewBox="0 0 340 170" role="img" aria-label="Часы занятий и задач по дням недели"></svg>
+        <div class="sec-head"><h2>Нагрузка по дням</h2><span class="sub">часы · листай ← →</span></div>
+        <div class="load-scroll" id="load-scroll"><svg class="chart" id="load-chart" role="img" aria-label="Часы занятий и задач по дням"></svg></div>
         <div class="row" id="load-legend"></div>
       </div>
       <div class="card">
@@ -117,13 +122,36 @@
       <div class="kv" id="kv"></div>
       <button class="btn" id="btn-logout" style="justify-self:center">Выйти из аккаунта</button>
     </section>
+
+    <!-- ПОТОМ -->
+    <section class="view" id="v-later">
+      <div>
+        <h2>Потом</h2>
+        <p class="sub" style="margin:4px 0 0">Дела без даты: посмотреть, прочитать, попробовать. В календаре их нет — поставь в день, когда будет время.</p>
+      </div>
+      <form class="card white form" id="later-form">
+        <div class="field"><label for="lt-title">Что сделать</label><input id="lt-title" placeholder="Посмотреть видео про упаковку https://…" required></div>
+        <div class="row end"><button class="btn ink" type="submit">Добавить</button></div>
+      </form>
+      <div class="agenda" id="later-list"></div>
+      <details class="fold" id="later-sched-wrap"><summary>Уже в календаре</summary><div class="agenda" id="later-sched"></div></details>
+      <details class="fold" id="later-done-wrap"><summary>Сделано</summary><div class="agenda" id="later-done"></div></details>
+    </section>
   </main>
+</div>
+
+<!-- Карточка привычки -->
+<div class="sheet-back" id="sheet-back" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-title" hidden>
+  <div class="sheet-grip"></div>
+  <div class="sheet-body" id="sheet-body"></div>
 </div>
 
 <nav class="tabbar" id="tabbar" hidden><div class="tabs" id="tabs">
   <button data-tab="today" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/></svg><span>Сегодня</span></button>
   <button data-tab="cal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="4"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>Календарь</span></button>
   <button data-tab="track"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Трекер</span></button>
+  <button data-tab="later"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h10M4 17h7"/><circle cx="18" cy="17" r="3"/></svg><span>Потом</span></button>
 </div></nav>
 
 <script src="config.js"></script>
