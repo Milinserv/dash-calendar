@@ -1,0 +1,4 @@
+xlrd==2.0.1
+caldav==3.6.0
+icalendar==7.3.0
+requests>=2.31

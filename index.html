@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Дашин день</title>
+<meta name="theme-color" content="#E8E8EA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F0F11" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Дашин день">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600&family=Doto:wght@700;900&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Экран входа / настройки -->
+<div class="gate" id="gate" hidden>
+  <div class="gate-card">
+    <div class="brand">дашин день</div>
+    <h1 id="gate-title">Вход</h1>
+    <p class="sub" id="gate-text">Войди один раз на этом устройстве — дальше приложение работает и без интернета.</p>
+    <form class="form" id="login-form">
+      <div class="field"><label for="l-email">Почта</label><input id="l-email" type="email" autocomplete="username" required></div>
+      <div class="field"><label for="l-pass">Пароль</label><input id="l-pass" type="password" autocomplete="current-password" required></div>
+      <button class="btn ink big" type="submit" id="l-btn">Войти</button>
+      <div class="err" id="l-err"></div>
+    </form>
+  </div>
+</div>
+
+<div class="app" id="app" hidden>
+  <main>
+    <header class="top">
+      <div>
+        <div class="brand">дашин день</div>
+        <h1 id="hello">Привет, Даша</h1>
+        <div class="sub" id="today-str"></div>
+      </div>
+      <button class="net" id="net" aria-live="polite"></button>
+    </header>
+
+    <div class="banner" id="banner" hidden></div>
+
+    <!-- СЕГОДНЯ -->
+    <section class="view is-active" id="v-today">
+      <div class="stats" id="stats"></div>
+      <div class="heroes">
+        <div class="glow green"><div class="lbl">Неделя</div><div><div class="big" id="score">—</div><div class="cap" id="score-cap"></div></div><div class="ticks"></div></div>
+        <div class="glow orange"><div class="lbl">Ближайший дедлайн</div><div><div class="big" id="dl-days">—</div><div class="cap" id="dl-cap"></div></div><div class="ticks"></div></div>
+      </div>
+      <div>
+        <div class="sec-head"><h2>Сегодня</h2></div>
+        <div class="agenda" id="ag-today"></div>
+      </div>
+      <div>
+        <div class="sec-head"><h2>Привычки недели</h2><button class="link" data-go="track">Все</button></div>
+        <div class="habits" id="habits-mini"></div>
+      </div>
+      <div>
+        <div class="sec-head"><h2 id="tmr-title">Завтра</h2><button class="link" data-go="cal">Календарь</button></div>
+        <div class="agenda" id="ag-tmr"></div>
+      </div>
+    </section>
+
+    <!-- КАЛЕНДАРЬ -->
+    <section class="view" id="v-cal">
+      <div class="sec-head" style="margin:0"><h2 id="month-title">Календарь</h2><button class="link" id="btn-add">+ Добавить</button></div>
+      <div class="strip" id="strip"></div>
+      <div class="filters" id="filters"></div>
+      <form class="card white form" id="add-form" hidden>
+        <div class="field"><label for="f-title">Что</label><input id="f-title" placeholder="Например, сдать макет Кате" required></div>
+        <div class="two">
+          <div class="field"><label for="f-date">Дата</label><input id="f-date" type="date" required></div>
+          <div class="field"><label for="f-cal">Календарь</label><select id="f-cal"></select></div>
+        </div>
+        <div class="two">
+          <div class="field"><label for="f-start">Начало (пусто — весь день)</label><input id="f-start" type="time"></div>
+          <div class="field"><label for="f-end">Конец</label><input id="f-end" type="time"></div>
+        </div>
+        <div class="row end"><button class="btn" type="button" id="f-cancel">Отмена</button><button class="btn ink" type="submit">Сохранить</button></div>
+      </form>
+      <div><div class="sec-head"><h2 id="sel-title"></h2></div><div class="agenda" id="ag-sel"></div></div>
+    </section>
+
+    <!-- ТРЕКЕР -->
+    <section class="view" id="v-track">
+      <div class="heroes">
+        <div class="glow green"><div class="lbl">Привычки</div><div><div class="big" id="hab-pct">—</div><div class="cap">плана недели</div></div><div class="ticks"></div></div>
+        <div class="glow pink"><div class="lbl">Задачи</div><div><div class="big" id="task-pct">—</div><div class="cap" id="task-cap"></div></div><div class="ticks"></div></div>
+      </div>
+      <div>
+        <div class="sec-head"><h2>Привычки</h2><button class="link" id="btn-habit">+ Привычка</button></div>
+        <form class="card white form" id="habit-form" hidden>
+          <div class="two">
+            <div class="field"><label for="h-name">Название</label><input id="h-name" placeholder="Например, бег" required></div>
+            <div class="field"><label for="h-target">Раз в неделю</label><input id="h-target" type="number" min="1" max="7" value="3"></div>
+          </div>
+          <div class="row between"><button class="btn danger" type="button" id="h-del" hidden>Удалить</button><span></span><div class="row"><button class="btn" type="button" id="h-cancel">Отмена</button><button class="btn ink" type="submit">Сохранить</button></div></div>
+        </form>
+        <div class="habits" id="habits-full"></div>
+      </div>
+      <div class="card">
+        <div class="sec-head"><h2>Нагрузка по дням</h2><span class="sub">часы, эта неделя</span></div>
+        <svg class="chart" id="load-chart" viewBox="0 0 340 170" role="img" aria-label="Часы занятий и задач по дням недели"></svg>
+        <div class="row" id="load-legend"></div>
+      </div>
+      <div class="card">
+        <div class="sec-head"><h2>Выполнение за 4 недели</h2><span class="sub">привычки, %</span></div>
+        <svg class="chart" id="hist-chart" viewBox="0 0 340 140" role="img" aria-label="Процент выполнения привычек по неделям"></svg>
+      </div>
+      <div class="kv" id="kv"></div>
+      <button class="btn" id="btn-logout" style="justify-self:center">Выйти из аккаунта</button>
+    </section>
+  </main>
+</div>
+
+<nav class="tabbar" id="tabbar" hidden><div class="tabs" id="tabs">
+  <button data-tab="today" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/></svg><span>Сегодня</span></button>
+  <button data-tab="cal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="4"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>Календарь</span></button>
+  <button data-tab="track"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Трекер</span></button>
+</div></nav>
+
+<script src="config.js"></script>
+<script src="vendor/supabase.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

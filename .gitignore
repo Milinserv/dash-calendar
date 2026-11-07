@@ -1,0 +1,5 @@
+sync/events.json
+sync/schedule.xls
+sync/changes.txt
+__pycache__/
+.DS_Store
