@@ -6,7 +6,7 @@
 const CFG = window.APP_CONFIG || {};
 const CALS = {
   study:{name:"Учёба",v:"--c-study"}, work:{name:"Работа",v:"--c-work"}, important:{name:"Важное",v:"--c-important"},
-  beauty:{name:"Бьюти",v:"--c-beauty"}, health:{name:"Здоровье",v:"--c-health"}
+  beauty:{name:"Бьюти",v:"--c-beauty"}, health:{name:"Здоровье",v:"--c-health"}, personal:{name:"Личное",v:"--c-personal"}
 };
 const DEFAULT_HABITS = [
   {id:"h-train", name:"Тренировки", target:3, color:"#34C759", sort:0},
@@ -282,7 +282,7 @@ function renderCal(items){
 const LOAD_WEEKS_BACK = 4, LOAD_WEEKS_FWD = 5;
 let loadScrolled = false;
 function renderLoad(items){
-  const order = ["study","work","beauty","health"], weeks = LOAD_WEEKS_BACK + 1 + LOAD_WEEKS_FWD;
+  const order = ["study","work","personal","beauty","health"], weeks = LOAD_WEEKS_BACK + 1 + LOAD_WEEKS_FWD;
   const start = addDays(monday(new Date()), -7*LOAD_WEEKS_BACK), days = [...Array(weeks*7)].map((_,k)=>ds(addDays(start,k)));
   const data = days.map(d => { const its = itemsOn(d, items).filter(i=>!i.allDay); const o = {}; for (const c of order) o[c] = its.filter(i=>i.cal===c).reduce((s,i)=>s+Math.max(0,mins(i.end)-mins(i.start))/60,0); return o; });
   const tot = data.map(o=>order.reduce((s,c)=>s+o[c],0)), max = Math.max(4, Math.ceil(Math.max(...tot)/2)*2);

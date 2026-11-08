@@ -11,7 +11,7 @@ import requests, caldav
 from icalendar import Calendar, Event, Alarm
 
 TZ = ZoneInfo("Europe/Samara")
-NAMES = {"study": "Учёба", "work": "Работа", "important": "Важное", "beauty": "Бьюти", "health": "Здоровье"}
+NAMES = {"study": "Учёба", "work": "Работа", "important": "Важное", "beauty": "Бьюти", "health": "Здоровье", "personal": "Личное"}
 CODES = {v: k for k, v in NAMES.items()}
 
 SB = os.environ["SUPABASE_URL"].rstrip("/") + "/rest/v1"
